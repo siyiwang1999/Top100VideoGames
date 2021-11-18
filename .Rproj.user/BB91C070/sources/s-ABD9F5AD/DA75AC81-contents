@@ -45,9 +45,7 @@ plot31
 
 ```
 
-Looking at the number of each game genre in Top 100 video games alone does not directly lead to a relevant conclusion about whether that game genre is the most popular. 
-
-Therefore, the interactive chart below combines the sales and sales percentages of game genres as a way to help you gain a more comprehensive insight about the most popular video game genres. Sales percentage are based on the sales of that game genre divided by the total sales of Top 100 video games.
+Considering the number of each game genre in Top 100 video games does not directly lead to a relevant conclusion about whether that game genre is the most popular. Therefore, the interactive chart below combines the sales and sales percentages of game genres to help you get a more complete picture of the most popular game genres. The sales percentage is calculated based on the sales of that game genre divided by the total sales of the top 100 video games.
 
 ```{r message=FALSE, warning=FALSE, echo=FALSE}
 library(ggplot2)

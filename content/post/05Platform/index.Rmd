@@ -13,7 +13,9 @@ knitr::opts_chunk$set(collapse = TRUE)
 
 # Platform Visuals
 
-The interactive chart below shows Top 100 video games by platform of release, and you can hover over it for more details. The interactive chart also includes global sales for each game, which is meant to guide you to be able to get a general impression of sales for a specific platform first, and to set the stage for subsequent specific insights that can be gained for platforms with larger audiences, as sales of all games on a platform can reflect whether that platform is attracting a large enough target audience.
+The interactive chart below shows Top 100 video games by platform of release, and you can hover over it for more details. 
+
+The interactive chart also includes global sales for each game, which is meant to guide you to be able to get a general impression of sales for a specific platform first, and to set the stage for subsequent specific insights that can be gained for platforms with larger audiences, as sales of all games on a platform can reflect whether that platform is attracting a large enough target audience.
 
 ```{r message=F,warning=F,echo=F}
 library(ggplot2)
@@ -71,19 +73,16 @@ names(plot5.count)[2]<-'Number of Games'
 # Number
 plot52<-ggplot(plot5.count,aes(y = Platform, x = `Number of Games`))+
   theme_bw()+
-<<<<<<< HEAD
   geom_bar(stat = 'identity', fill = '#E9967A')+
   scale_x_continuous(expand = expansion(c(0,0.02)))+
   scale_y_discrete(position='right')+
   labs(y = '', title = 'Numbers of Top 100 Video Games Platforms')+
   geom_text(aes(label = `Number of Games`), hjust = 0, nudge_x = 0.6, size = 3)+
-=======
   geom_bar(stat = 'identity',fill = '#E9967A')+
   scale_x_continuous(expand = expansion(c(0, 0.02)))+
   scale_y_discrete(position = 'right')+
   labs(y = '', title = 'Numbers of Top 100 Video Games Platforms')+
   geom_text(aes(label =`Number of Games`),hjust = 0, nudge_x = 0.6, size = 3)+
->>>>>>> 54af3918e127b1c3ca0c18aa8007dd3877f93f3d
   theme(plot.title = element_text(hjust = 0.5))
 
 plot52 <- ggplotly(plot52, width = 600) %>%
@@ -109,15 +108,10 @@ plot53.data[,hovertext:=paste(
   sep = "<br>")]
 
 plot_ly(data = plot53.data,ids = ~Platform,labels = ~Platform,
-<<<<<<< HEAD
         values = ~sales,parents='World Top 100',
         type ='sunburst',branchvalues = 'total',text = ~hovertext,
-        textinfo = 'text',hoverinfo = 'text') %>% layout(title = '<b> Sales of Top 100 Video Games Platforms (in millions) <b>')
-=======
-        values = ~sales,parents = 'World Top 100',
-        type = 'sunburst', branchvalues = 'total',text = ~hovertext,
         textinfo = 'text', hoverinfo = 'text') %>% layout(title = '<b> Sales of Top 100 Video Games Platforms (in millions) <b>')
->>>>>>> 54af3918e127b1c3ca0c18aa8007dd3877f93f3d
+
 
 
 ```

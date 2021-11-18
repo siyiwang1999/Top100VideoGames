@@ -37,14 +37,15 @@ top100<-highlight_key(top100, ~Region, 'Select Region:')
 
 pp<-ggplot(top100, aes(x = Rank,y = sales,colour = Region,group = Region,text = label))+
 geom_line()+
-  theme_bw() %+replace% theme(legend.position='bottom')+
+  theme_bw() %+replace% theme(legend.position = 'bottom')+
   scale_x_continuous(expand = expansion(0.01),breaks = seq(10, 100, by = 10))+
   labs(y ='Sales')
 
 ggplotly(pp, tooltip = 'label', width = 800) %>% 
   highlight(dynamic = F, selectize = T, opacityDim = 0.2) %>%
   layout(legend = list(orientation = "h",x = 0.5,xanchor = "center",y = -0.2),
-         title=list(text='<b> North America, Europe, Japan and Other Sales of Top 100 Video Games (in millions) <b>', x = 0.5, xref = 'paper', font=list(size=15)))
+               title = list(text = '<b> North America, Europe, Japan and Other Sales of Top 100 Video Games (in millions) <b>', x = 0.5, xref = 'paper', font = list(size = 15)))
+
 
 
 ```

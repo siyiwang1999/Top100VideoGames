@@ -44,11 +44,8 @@ geom_line()+
 ggplotly(pp, tooltip = 'label', width = 800) %>% 
   highlight(dynamic = F, selectize = T, opacityDim = 0.2) %>%
   layout(legend = list(orientation = "h",x = 0.5,xanchor = "center",y = -0.2),
-<<<<<<< HEAD
-         title=list(text ='<b> North America, Europe, Japan and Other Sales of Top 100 Video Games (in millions) <b>', x = 0.5, xref = 'paper', font = list(size = 15)))
-=======
-         title = list(text = '<b> North America, Europe, Japan and Other Sales of Top 100 Video Games (in millions) <b>', x = 0.5, xref = 'paper', font = list(size = 15)))
->>>>>>> 54af3918e127b1c3ca0c18aa8007dd3877f93f3d
+               title = list(text = '<b> North America, Europe, Japan and Other Sales of Top 100 Video Games (in millions) <b>', x = 0.5, xref = 'paper', font = list(size = 15)))
+
 
 
 ```
