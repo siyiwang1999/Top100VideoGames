@@ -13,7 +13,7 @@ knitr::opts_chunk$set(collapse = TRUE)
 
 # Publisher Visuals
 
-Hover over the interactive chart below to get learn about the most prominent video game publishers in the world.
+Hover over the interactive chart below to learn about the most prominent video game publishers in the world.
 
 ```{r message=F,warning=F,echo=F}
 library(ggplot2)
@@ -38,7 +38,7 @@ plot41<-ggplot(plot41.data,aes(x=Number,y=Publisher,fill=Publisher))+
 
 ggplotly(plot41,tooltip = c('x','fill'),width = 900) %>% 
   hide_legend() %>% 
-  layout(title=list(text = '<b> Numbers of Top 100 Video Games Publishers <b>',font = list(size = 15)))
+  layout(title = list(text = '<b> Numbers of Top 100 Video Games Publishers <b>',font = list(size = 15)))
 
 
 ```
