@@ -1,0 +1,81 @@
+---
+title: "Genre of Top 100 Video Games"
+author: "Siyi Wang"
+date: 2021-11-09T21:13:14-05:00
+categories: ["R"]
+tags: ["Top 100 Video Games", "Genre"]
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(collapse = TRUE)
+```
+
+# Genre Visuals
+
+The plots below show the genre distribution of Top 100 selling video games. You can hover your mouse over them to see more details.
+
+```{r message=F,warning=F,echo=F}
+library(ggplot2)
+library(plotly)
+library(data.table)
+library(scales)
+library(RColorBrewer)
+
+data.file<-"../vgsales.csv"
+fread(data.file)->info
+
+plot3.data<-info[order(-Global_Sales)][1:100,.(Rank,Genre,Global_Sales)]
+
+plot32.data<-plot3.data[,.(Number=.N),Genre][order(-Number)]
+plot32.data[,Genre:=ordered(Genre,Genre)]
+
+plot32<-ggplot(plot32.data,aes(x=Genre,y=Number,fill=Genre))+
+         geom_bar(stat='identity')+
+         theme_bw() %+replace% theme(axis.text.x=element_text(angle=45,hjust=1,vjust=1))+
+         scale_fill_manual(values=setNames(brewer.pal(11,'Set3'),plot32.data$Genre))+
+         labs(title = 'Genre Distribution of Top 100 Video Games')+
+		 geom_text(aes(label=Number),vjust=0,nudge_y=0.6)
+		 
+plot32<-ggplotly(plot32,tooltip=c('x','y'),width=800)
+
+plot32 # Genre Distribution
+
+```
+
+The genre sales of Top 100 video games are shown in the interactive plot below.
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+library(ggplot2)
+library(plotly)
+library(data.table)
+library(scales)
+library(RColorBrewer)
+
+data.file<-"../vgsales.csv"
+fread(data.file)->info
+
+plot3.data<-info[order(-Global_Sales)][1:100,.(Rank,Genre,Global_Sales)]
+
+plot31.data<-plot3.data[,.(Global_Sales=sum(Global_Sales)),Genre][order(-Global_Sales)]
+
+plot31.data[,texthover:=
+paste(
+paste0("<b>Genre</b>",": ",Genre),
+paste0("<b>Sales</b>",": $",Global_Sales),
+paste0("<b>% Sales</b>",": ",percent(Global_Sales/sum(Global_Sales))),
+sep='<br>'
+)]
+
+plot31 <- plot_ly(plot31.data, labels = ~Genre, values = ~Global_Sales, text=~texthover,
+hoverinfo='text', textinfo='label',
+marker=list(colors=brewer.pal(nrow(plot31.data),'Set3')),
+type = 'pie',width=800)
+
+plot31 <- plot31 %>% layout(title = 'Genre Sales of Top 100 Video Games (in millions)',
+         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+
+plot31
+```
+

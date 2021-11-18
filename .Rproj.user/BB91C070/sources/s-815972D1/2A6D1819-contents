@@ -1,0 +1,153 @@
+setwd("/Users/wangsahyeok/Desktop/COMM5501A3")
+
+install.packages("ggplot2")
+library(ggplot2)
+install.packages("plotly")
+library(plotly)
+install.packages("data.table")
+library(data.table)
+
+data.file <- "/Users/wangsahyeok/Desktop/COMM5501A3/vgsales.csv"
+fread(data.file)->info
+
+###info[,.(fivenum(Global_Sales-NA_Sales-EU_Sales-JP_Sales-Other_Sales))]
+##lapply(info[,2:6],function(x) tail(sort(table(x)),5))
+
+# Regional Sales of Top 100 Video Games (in millions)
+
+salesCols<-c('Rank', grep('_Sales$', names(info), value = T))
+top100<-info[order(-Global_Sales)][1:100,..salesCols][,!'Global_Sales']
+top100<-melt(top100, id.vars = 'Rank', variable.name = 'where',value.name = 'sales')
+top100[,Region:=fcase(where =='NA_Sales', 'North America', where == 'EU_Sales', 'Europe', 
+                      where == 'JP_Sales','Japan',default = 'Other')]
+
+top100 <- highlight_key(top100, ~Region, 'Select Region:')
+
+pp<-ggplot(top100, aes(x = Rank,y = sales,colour = Region, group = Region))+
+  geom_line()+
+  theme_dark() %+replace% theme(legend.position = 'bottom')+
+  scale_x_continuous(expand = expansion(0.01),breaks = seq(10, 100, by = 10))+
+  labs(y = 'Sales')
+
+ggplotly(pp,tooltip =c('x','y','colour'),width=800) %>% 
+  highlight(dynamic=F, selectize=T, opacityDim=0.2) %>%
+  layout(legend = list(
+    orientation = "h", x = 0.5, xanchor = "center", y = -0.2))
+
+###
+install.packages("htmltools")
+library(htmltools)
+install.packages("shinydashboard")
+library(shinydashboard)
+install.packages("shiny")
+library(shiny)
+
+# Year Distribution of Top 100 Video Games
+plot2.data<-info[order(-Global_Sales)][1:100,.(Rank, Year, Name, Global_Sales)]
+plot2.data[,rank10:=cut(Rank,breaks=c(0, seq(10, 100, by=10)))]
+plot2.data[,rank10.size:=1/as.integer(rank10)]
+plot2.data[,Year:=as.integer(Year)]
+
+plot2.data[,label:=paste0('<b><i>', Name, '</i></b><br>',
+                          '<b>Rank: </b>', Rank, '<br>',
+                          '<b>Year: </b>', Year, '<br>',
+                          '<b>Global_Sales: </b>$', Global_Sales, '<br>')]
+
+plot2<-ggplot(plot2.data,aes(x=Rank, y=Year, size=rank10.size, colour = Global_Sales, text=label))+
+  geom_vline(xintercept = seq(10, 100, by=10), colour = '#3B3131',lty = 4)+
+  geom_point(shape = 20)+
+  theme_bw()+
+  scale_x_continuous(breaks = seq(10, 100, by = 10))+
+  scale_size_continuous(guide = 'none')+
+  scale_colour_viridis_c(begin = 0.5,option = 'C',direction = -1)+
+  scale_y_continuous(breaks = seq(1980, 2015, by = 5))
+
+ggplotly(plot2, tooltip = 'text', width = 900)
+
+# Genre Distribution of Top 100 Video Games
+plot3.data<-info[order(-Global_Sales)][1:100,.(Rank,Genre,Global_Sales)]
+
+plot31.data<-plot3.data[,.(Number=.N),Genre][order(-Number)]
+plot31.data[,Genre:=ordered(Genre,Genre)]
+
+plot31<-plot_ly(plot31.data,x=~Genre,y=~Number, color=~as.character(Genre),type = "bar",width=800) %>%
+  hide_legend() %>%
+  layout(title = 'Number of Top 100 Video Games According to Genre')
+plot31
+
+plot32.data<-plot3.data[,.(Global_Sales=sum(Global_Sales)),Genre][order(-Global_Sales)]
+
+plot32 <- plot_ly(plot32.data, labels = ~Genre, values = ~Global_Sales, type = 'pie', width = 800)
+plot32 <- plot32 %>% layout(title = 'Sales Percentage According to Genre (sales in millions)',
+                            xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+                            yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+plot32
+
+# Number of Top 100 Video Games Publishers
+plot4.data<-info[order(-Global_Sales)][1:100,.(Rank, Publisher, Global_Sales)]
+
+plot41.data<-plot4.data[,.(Number = .N), by = Publisher][order(-Number)]
+plot41.data[,Publisher:=ordered(Publisher, rev(Publisher))]
+
+plot41<-ggplot(plot41.data, aes(x = Number,y = Publisher, fill = Publisher))+
+  theme_bw()+
+  geom_bar(stat='identity', show.legend = F)+
+  scale_x_continuous(expand = expansion(c(0,0.05)))+
+  labs(x = 'Number of Games',y= 'Publisher', title = 'Number of Top 100 Video Games Publishers')+
+  scale_fill_viridis_d(direction = -1, option = 'C')
+
+ggplotly(plot41, tooltip = c('x', 'colour', 'fill'), width=900) %>% hide_legend()
+
+#
+plot5<-info[order(-Global_Sales)][1:100,.(Rank,Global_Sales,Platform)]
+plot5.count<-plot5[, .N, Platform][order(-N)]
+plot5[,Platform:=ordered(Platform,levels = rev(plot5.count$Platform))]
+plot5.count[, Platform:=ordered(Platform, rev(Platform))]
+names(plot5.count)[2]<-'Number of Games'
+
+# Platform of Top 100 Video Games Release
+plot51 <- ggplot(plot5, aes(x = Rank,y = Platform, size = Global_Sales))+
+  geom_point(show.legend=F, colour = '#3B3131', fill = 'lightblue', shape = 21)+
+  scale_x_continuous(breaks = seq(10, 100, by = 10))+
+  theme_bw()+
+  scale_size_continuous(range = c(0.5, 4))+
+  labs(title = 'Platform of Top 100 Video Games Release')
+plot51
+
+# Number of Top 100 video games released on each platform
+plot52 <- ggplot(plot5.count, aes(y = Platform, x = `Number of Games`))+
+  theme_bw()+
+  geom_bar(stat = 'identity')+
+  scale_x_continuous(expand = expansion(c(0,0.02)))+
+  scale_y_discrete(position = 'right')+
+  labs(y = '', title = 'Number of Top 100 Video Games Released on Each Platform')
+plot52
+
+salesCols<-c('Rank','Platform', grep('_Sales$', names(info), value=T))
+plot5.data<-info[order(-Global_Sales)][1:100, ..salesCols][,!'Global_Sales']
+plot5.data<-melt(plot5.data, id.vars = c('Rank','Platform'), variable.name='where', value.name='sales')
+plot5.data[, Region:=fcase(where == 'NA_Sales','North America', where=='EU_Sales','Europe', where=='JP_Sales','Japan',default='Other')]
+plot5.data<-plot5.data[,.(sales = sum(sales)),by =.(Region, Platform)]
+
+install.packages("treemapify")
+library(treemapify)
+library(htmltools)
+install.packages("shinydashboard")
+library(shinydashboard)
+install.packages("shiny")
+library(shiny)
+
+# Sales of Top 100 Video Games by Regional Gaming Platform
+plot5<-ggplot2::ggplot(plot5.data, aes(area = sales, subgroup = Platform,
+                                       subgroup2 = Region, fill = Region)) +
+  geom_treemap(start = 'topleft')+
+  geom_treemap_subgroup_border(color = 'white', lwd = 3)+
+  geom_treemap_subgroup_text(place = "centre", grow = TRUE, alpha = 0.5)+
+  theme_bw() %+replace% theme(legend.position = 'bottom')+
+  labs(title = 'Sales of Top 100 Video Games by Regional Gaming Platform')
+plot5
+
+fluidPage(
+  shiny::fluidRow(shinydashboard::box(width = 8, ggplotly(plot51, width = 600), height = '500px'),
+                  shinydashboard::box(width = 4, ggplotly(plot52, width = 300, tooltip = 'x')))		   
+)

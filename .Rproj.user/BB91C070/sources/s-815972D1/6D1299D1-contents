@@ -1,0 +1,45 @@
+---
+title: "Publisher of Top 100 Video Games"
+author: "Siyi Wang"
+date: 2021-11-08T21:13:14-05:00
+categories: ["R"]
+tags: ["Top 100 Video Games", "Publisher"]
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(collapse = TRUE)
+```
+
+# Publisher Visuals
+
+Hover over the interactive chart below to get learn about the most prominent video game publishers in the world.
+
+```{r message=F,warning=F,echo=F}
+library(ggplot2)
+library(plotly)
+library(data.table)
+data.file<-"../vgsales.csv"
+fread(data.file)->info
+
+plot4.data<-info[order(-Global_Sales)][1:100,.(Rank,Publisher,Global_Sales)]
+
+plot41.data<-plot4.data[,.(Number=.N),by=Publisher][order(-Number)]
+plot41.data[,Publisher:=ordered(Publisher,rev(Publisher))]
+
+plot41<-ggplot(plot41.data,aes(x=Number,y=Publisher,fill=Publisher))+
+  theme_bw()+
+  geom_bar(stat = 'identity',show.legend = F)+
+  scale_x_continuous(expand = expansion(c(0, 0.05)))+
+  labs(x = 'Number of Games',y = 'Publisher', title = 'Numbers of Top 100 Video Games Publishers')+
+  scale_fill_viridis_d(direction = -1,option = 'C')+
+  geom_text(aes(label = Number),hjust = 0,nudge_x = 0.8)+
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplotly(plot41,tooltip = c('x','fill'),width = 900) %>% 
+  hide_legend() %>% 
+  layout(title=list(text = '<b> Numbers of Top 100 Video Games Publishers <b>',font = list(size = 15)))
+
+
+```
+

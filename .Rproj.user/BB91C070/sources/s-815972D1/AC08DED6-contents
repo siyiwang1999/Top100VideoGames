@@ -1,0 +1,53 @@
+---
+title: "Region Sales of Top 100 Video Games (in millions)"
+author: "Siyi Wang"
+date: 2021-11-11T21:13:14-05:00
+categories: ["R"]
+tags: ["Top 100 Video Games", "Sales", "Region"]
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(collapse = TRUE)
+```
+
+# Region Sales Visuals
+
+The plot below shows North America, Europe, Japan and Other Sales of Top 100 Video Games in millions. This is an interactive graph, and with the tabs in the upper right corner, you are free to choose whether to see only Top 100 selling video games in a particular region or the difference in sales of video games with the same ranking in four regions at the same time.
+
+```{r message=F,warning=F,echo=F}
+########
+library(ggplot2)
+library(plotly)
+library(data.table)
+data.file<-"../vgsales.csv"
+fread(data.file)->info
+
+
+salesCols<-c('Rank','Name',grep('_Sales$',names(info),value=T))
+top100<-info[order(-Global_Sales)][1:100,..salesCols][,!'Global_Sales']
+top100<-melt(top100,id.vars=c('Rank','Name'),variable.name='where',value.name='sales')
+top100[,Region:=fcase(where=='NA_Sales','North America',where=='EU_Sales','Europe',where=='JP_Sales','Japan',default='Other')]
+
+top100[,label:=
+paste(paste0('<b>Rank</b>',': ',Rank),
+paste0('<b>Name</b>',': ',Name),
+paste0('<b>',Region,' Sales</b>',': ',sales),
+sep="<br>")]
+
+top100<-highlight_key(top100,~Region,'Select Region:')
+
+pp<-ggplot(top100, aes(x=Rank,y=sales,colour=Region,group=Region,text=label))+
+geom_line()+
+ theme_bw() %+replace% theme(legend.position='bottom')+
+ scale_x_continuous(expand=expansion(0.01),breaks=seq(10,100,by=10))+
+ labs(y='Sales')
+
+ggplotly(pp,tooltip ='label',width=800) %>% 
+   highlight(dynamic=F,selectize=T,opacityDim=0.2) %>%
+     layout(legend = list(
+      orientation = "h",x= 0.5,xanchor = "center",y= -0.2))
+
+
+```
+

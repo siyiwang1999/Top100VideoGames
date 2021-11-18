@@ -1,0 +1,161 @@
+#COMM5501 A3
+setwd('/Users/wangsahyeok/Desktop/VideoGame')
+
+# 1. Region Sales
+library(ggplot2)
+install.packages("plotly")
+library(plotly)
+install.packages("data.table")
+library(data.table)
+
+data.file<-"/Users/wangsahyeok/Desktop/VideoGame/vgsales.csv"
+fread(data.file)->info
+
+salesCols<-c('Rank','Name',grep('_Sales$',names(info),value=T))
+top100<-info[order(-Global_Sales)][1:100,..salesCols][,!'Global_Sales']
+top100<-melt(top100,id.vars=c('Rank','Name'),variable.name='where',value.name='sales')
+top100[,Region:=fcase(where=='NA_Sales','North America',where=='EU_Sales','Europe',where=='JP_Sales','Japan',default='Other')]
+
+top100[,label:=
+paste(paste0('<b>Rank</b>',': ',Rank),
+paste0('<b>Name</b>',': ',Name),
+paste0('<b>',Region,' Sales</b>',': ',sales),
+sep="<br>")]
+
+top100<-highlight_key(top100,~Region,'Select Region:')
+
+pp<-ggplot(top100, aes(x=Rank,y=sales,colour=Region,group=Region,text=label))+
+geom_line()+
+ theme_bw() %+replace% theme(legend.position='bottom')+
+ scale_x_continuous(expand=expansion(0.01),breaks=seq(10,100,by=10))+
+ labs(y='Sales')
+
+ggplotly(pp,tooltip ='label',width=800) %>% 
+   highlight(dynamic=F,selectize=T,opacityDim=0.2) %>%
+     layout(legend = list(
+      orientation = "h",x=0.5,xanchor = "center",y=-0.2))
+
+# 2. Release Year
+plot2.data<-info[order(-Global_Sales)][1:100,.(Rank,Year,Name,Global_Sales)]
+plot2.data[,rank10:=cut(Rank,breaks=c(0,seq(10,100,by=10)))]
+plot2.data[,rank10.size:=1/as.integer(rank10)]
+plot2.data[,Year:=as.integer(Year)]
+
+plot2.data[,label:=paste0('<b><i>',Name,'</i></b><br>',
+'<b>Rank: </b>',Rank,'<br>',
+'<b>Year: </b>',Year,'<br>',
+'<b>Global_Sales: </b>$',Global_Sales,'<br>')]
+
+plot2<-ggplot(plot2.data,aes(x=Rank,y=Year,size=rank10.size,colour=Global_Sales,text=label))+
+   geom_vline(xintercept=seq(10,100,by=10),colour='#3B3131',lty=4)+
+   geom_point(shape=20)+
+   theme_bw()+
+   scale_x_continuous(breaks=seq(10,100,by=10))+
+   scale_size_continuous(guide='none')+
+   scale_colour_viridis_c(begin=0.5,option='C',direction=-1)+
+   scale_y_continuous(breaks=seq(1980,2015,by=5))
+
+ggplotly(plot2,tooltip='text',width=900)
+
+
+# 3. Genre Related
+install.packages("scales")
+library(scales)
+install.packages("RColorBrewer")
+library(RColorBrewer)
+
+plot3.data<-info[order(-Global_Sales)][1:100,.(Rank,Genre,Global_Sales)]
+
+# Genre Sales
+plot31.data<-plot3.data[,.(Global_Sales=sum(Global_Sales)),Genre][order(-Global_Sales)]
+plot31.data[,texthover:=
+paste(paste0("<b>Genre</b>",": ",Genre),
+paste0("<b>Sales</b>",": $",Global_Sales),
+paste0("<b>% Sales</b>",": ",percent(Global_Sales/sum(Global_Sales))),
+sep='<br>')]
+
+plot31 <- plot_ly(plot31.data, labels = ~Genre, values = ~Global_Sales, text=~texthover,
+hoverinfo='text', textinfo='label',
+marker=list(colors=brewer.pal(nrow(plot31.data),'Set3')),
+type = 'pie',width=800)
+
+plot31 <- plot31 %>% layout(title = 'Sales Percentage According to Genre (sales in millions)',
+         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+
+# Genre Distribution
+plot32.data<-plot3.data[,.(Number=.N),Genre][order(-Number)]
+plot32.data[,Genre:=ordered(Genre,Genre)]
+
+plot32<-ggplot(plot32.data,aes(x=Genre,y=Number,fill=Genre))+
+         geom_bar(stat='identity')+
+         theme_bw() %+replace% theme(axis.text.x=element_text(angle=45,hjust=1,vjust=1))+
+         scale_fill_manual(values=setNames(brewer.pal(11,'Set3'),plot31.data$Genre))+
+         labs(title = 'Number of Top 100 Video Games According to Genre')+
+		 geom_text(aes(label=Number),vjust=0,nudge_y=0.6)
+		 
+plot32<-ggplotly(plot32,tooltip=c('x','y'),width=800)
+
+plot32
+ 
+plot31
+
+# 4. Publisher
+plot4.data<-info[order(-Global_Sales)][1:100,.(Rank,Publisher,Global_Sales)]
+
+plot41.data<-plot4.data[,.(Number=.N),by=Publisher][order(-Number)]
+plot41.data[,Publisher:=ordered(Publisher,rev(Publisher))]
+
+plot41<-ggplot(plot41.data,aes(x=Number,y=Publisher,fill=Publisher))+
+   theme_bw()+
+   geom_bar(stat='identity',show.legend=F)+
+   scale_x_continuous(expand=expansion(c(0,0.05)))+
+   labs(x = 'Number of Games',y= 'Publisher', title = 'Number of Top 100 Video Games Publishers')+
+   scale_fill_viridis_d(direction=-1,option='C')+
+   geom_text(aes(label=Number),hjust=0,nudge_x=0.8)
+
+ggplotly(plot41,tooltip=c('x','fill'),width=900) %>% hide_legend()
+
+# Platform
+install.packages("htmltools")
+library(htmltools)
+install.packages("shinydashboard")
+library(shinydashboard)
+install.packages("shiny")
+library(shiny)
+
+plot50<-info[order(-Global_Sales)][1:100,.(Rank,Global_Sales,Platform)]
+plot50.count<-plot50[, .N, Platform][order(-N)]
+plot50[,Platform:=ordered(Platform,levels = rev(plot50.count$Platform))]
+plot50.count[, Platform:=ordered(Platform, rev(Platform))]
+names(plot50.count)[2]<-'Number of Games'
+
+# Platform of Top 100 Video Games Release
+plot501 <- ggplot(plot50, aes(x = Rank,y = Platform, size = Global_Sales))+
+  geom_point(show.legend=F, colour = '#3B3131', fill = '#FBB117', shape = 21)+
+  scale_x_continuous(breaks = seq(10, 100, by = 10))+
+  theme_bw()+
+  scale_size_continuous(range = c(0.5, 4))+
+  labs(title = 'Platform of Top 100 Video Games Release')
+
+plot502<-ggplot(plot50.count,aes(y=Platform,x=`Number of Games`))+
+   theme_bw()+
+   geom_bar(stat='identity',fill='lightblue')+
+   scale_x_continuous(expand=expansion(c(0,0.02)))+
+   scale_y_discrete(position='right')+
+   labs(y='', title = 'Number of Top 100 Video Games released on Each Platform')+
+   geom_text(aes(label=`Number of Games`),hjust=0,nudge_x=0.6,size=3)
+
+plot5.data<-info[order(-Global_Sales)][1:100,.(Platform,Global_Sales)]
+plot5.data<-plot5.data[,.(sales=sum(Global_Sales)),by=Platform]
+
+plot5.data[,hovertext:=paste(
+paste0("<b>Platform</b>",": ",Platform),
+paste0("<b>Sales</b>",": $",sales),
+sep="<br>")]
+
+plot_ly(data=plot5.data,ids=~Platform,labels=~Platform,
+     values=~sales,parents='World Top 100',
+     type='sunburst',branchvalues = 'total',text=~hovertext,
+     textinfo='text',hoverinfo='text') %>% layout(title='Sales of Top 100 Video Games by Gaming Platform')
+
