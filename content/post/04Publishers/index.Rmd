@@ -38,7 +38,11 @@ plot41<-ggplot(plot41.data,aes(x=Number,y=Publisher,fill=Publisher))+
 
 ggplotly(plot41,tooltip = c('x','fill'),width = 900) %>% 
   hide_legend() %>% 
+<<<<<<< HEAD
   layout(title=list(text = '<b> Numbers of Top 100 Video Games Publishers <b>', font = list(size = 15)))
+=======
+  layout(title = list(text = '<b> Numbers of Top 100 Video Games Publishers <b>',font = list(size = 15)))
+>>>>>>> 54af3918e127b1c3ca0c18aa8007dd3877f93f3d
 
 
 ```
