@@ -66,7 +66,7 @@ paste0("<b>Sales</b>",": $",Global_Sales),
 paste0("<b>% Sales</b>",": ",percent(Global_Sales/sum(Global_Sales))),
 sep='<br>')]
 
-plot32 <- plot_ly(plot32.data, labels = ~Genre, values = ~ Global_Sales, text = ~texthover,
+plot32 <- plot_ly(plot32.data, labels = ~Genre, values = ~Global_Sales, text = ~texthover,
 hoverinfo = 'text', textinfo = 'label',
 marker = list(colors = brewer.pal(nrow(plot31.data), 'Set3')),
 type = 'pie',width = 800)
