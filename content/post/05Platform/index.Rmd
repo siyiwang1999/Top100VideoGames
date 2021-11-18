@@ -13,7 +13,7 @@ knitr::opts_chunk$set(collapse = TRUE)
 
 # Platform Visuals
 
-The interactive chart below shows Top 100 video game platforms, and you can hover over it for more details. To follow up on relevant insights from platforms with relatively large mainstream and audience segments, the interactive chart also includes global sales for each game, as global sales can help understand the definitions and draw conclusions later on.
+The interactive chart below shows Top 100 video games by platform of release, and you can hover over it for more details. The interactive chart also includes global sales for each game, which is meant to guide you to be able to get a general impression of sales for a specific platform first, and to set the stage for subsequent specific insights that can be gained for platforms with larger audiences, as sales of all games on a platform can reflect whether that platform is attracting a large enough target audience.
 
 ```{r message=F,warning=F,echo=F}
 library(ggplot2)
@@ -41,7 +41,7 @@ plot51 <- ggplot(plot5, aes(x = Rank,y = Platform, size = Global_Sales))+
   labs(title = 'Platform of Top 100 Video Games Release')+
   theme(plot.title = element_text(hjust = 0.5))
 
-plot51 <- ggplotly(plot51, width=600) %>%
+plot51 <- ggplotly(plot51, width = 600) %>%
   layout(title = list(text = '<b> Platform of Top 100 Video Games Release <b>', font = list(size = 15)))
 
 plot51
@@ -49,7 +49,7 @@ plot51
 
 ```
 
-Hover over the chart below to learn about the specific platforms that support Top 100 video games and the number of games on each platform as a way to gain insight about the platforms favored by publishers.
+Hover over the chart below to learn more about the number of Top 100 video games released on each platform as a way to gain insight into the platforms favored by publishers.
 
 ```{r message=FALSE, warning=FALSE, echo=FALSE}
 library(ggplot2)
@@ -69,13 +69,13 @@ plot5.count[, Platform:=ordered(Platform, rev(Platform))]
 names(plot5.count)[2]<-'Number of Games'
 
 # Number
-plot52<-ggplot(plot5.count,aes(y=Platform,x=`Number of Games`))+
+plot52<-ggplot(plot5.count,aes(y = Platform, x = `Number of Games`))+
   theme_bw()+
-  geom_bar(stat='identity',fill='#E9967A')+
-  scale_x_continuous(expand=expansion(c(0,0.02)))+
-  scale_y_discrete(position='right')+
-  labs(y='', title = 'Numbers of Top 100 Video Games Platforms')+
-  geom_text(aes(label=`Number of Games`),hjust=0,nudge_x=0.6,size=3)+
+  geom_bar(stat = 'identity',fill = '#E9967A')+
+  scale_x_continuous(expand = expansion(c(0, 0.02)))+
+  scale_y_discrete(position = 'right')+
+  labs(y = '', title = 'Numbers of Top 100 Video Games Platforms')+
+  geom_text(aes(label =`Number of Games`),hjust = 0, nudge_x = 0.6, size = 3)+
   theme(plot.title = element_text(hjust = 0.5))
 
 plot52 <- ggplotly(plot52, width=600) %>%
@@ -86,7 +86,7 @@ plot52
 
 ```
 
-If the two interactive charts above do not provide the most straightforward conclusions about the mainstream gaming platforms and the gaming platforms with the largest audiences, then the following interactive chart can help you to some extent. 
+While the two interactive charts above may not provide the most straightforward conclusions about the mainstream gaming platforms and those with the largest audiences, the following interactive chart can help you to some extent. 
 
 Combining the information from the first two interactive charts, this chart clearly shows the total sales of the gaming platforms. The higher the sales, the more it proves that the game platform attracts a large enough audience and therefore creates a virtuous circle where game publishers are more willing to release games on these platforms to attract their audience.
 
@@ -101,9 +101,9 @@ plot53.data[,hovertext:=paste(
   sep="<br>")]
 
 plot_ly(data = plot53.data,ids = ~Platform,labels = ~Platform,
-        values = ~sales,parents='World Top 100',
-        type ='sunburst',branchvalues = 'total',text = ~hovertext,
-        textinfo = 'text',hoverinfo = 'text') %>% layout(title = '<b>Sales of Top 100 Video Games Platforms (in millions)<b>')
+        values = ~sales,parents = 'World Top 100',
+        type = 'sunburst', branchvalues = 'total',text = ~hovertext,
+        textinfo = 'text', hoverinfo = 'text') %>% layout(title = '<b> Sales of Top 100 Video Games Platforms (in millions) <b>')
 
 
 ```
