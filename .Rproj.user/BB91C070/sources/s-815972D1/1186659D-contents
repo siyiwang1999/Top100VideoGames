@@ -69,7 +69,7 @@ plot5.count[, Platform:=ordered(Platform, rev(Platform))]
 names(plot5.count)[2]<-'Number of Games'
 
 # Number
-plot52<-ggplot(plot5.count,aes(y = Platform, x = `Number of Games`))+
+plot52<-ggplot(plot5.count,aes(y=Platform,x=`Number of Games`))+
   theme_bw()+
   geom_bar(stat = 'identity', fill = '#E9967A')+
   scale_x_continuous(expand = expansion(c(0,0.02)))+
@@ -98,7 +98,7 @@ plot53.data<-plot53.data[,.(sales=sum(Global_Sales)),by=Platform]
 plot53.data[,hovertext:=paste(
   paste0('<b>Platform</b>',": ",Platform),
   paste0('<b>Sales</b>',": $",sales),
-  sep = "<br>")]
+  sep="<br>")]
 
 plot_ly(data = plot53.data,ids = ~Platform,labels = ~Platform,
         values = ~sales,parents='World Top 100',

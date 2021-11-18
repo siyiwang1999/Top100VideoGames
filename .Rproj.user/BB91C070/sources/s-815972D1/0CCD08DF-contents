@@ -31,14 +31,14 @@ plot41<-ggplot(plot41.data,aes(x=Number,y=Publisher,fill=Publisher))+
   theme_bw()+
   geom_bar(stat = 'identity',show.legend = F)+
   scale_x_continuous(expand = expansion(c(0, 0.05)))+
-  labs(x = 'Number of Games', y = 'Publisher', title = 'Numbers of Top 100 Video Games Publishers')+
+  labs(x = 'Number of Games',y = 'Publisher', title = 'Numbers of Top 100 Video Games Publishers')+
   scale_fill_viridis_d(direction = -1,option = 'C')+
   geom_text(aes(label = Number),hjust = 0,nudge_x = 0.8)+
   theme(plot.title = element_text(hjust = 0.5))
 
 ggplotly(plot41,tooltip = c('x','fill'),width = 900) %>% 
   hide_legend() %>% 
-  layout(title=list(text = '<b> Numbers of Top 100 Video Games Publishers <b>', font = list(size = 15)))
+  layout(title=list(text = '<b> Numbers of Top 100 Video Games Publishers <b>',font = list(size = 15)))
 
 
 ```
