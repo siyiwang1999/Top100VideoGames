@@ -93,9 +93,9 @@ plot52
 
 ```
 
-While the two interactive charts above may not provide the most straightforward conclusions about the mainstream gaming platforms and those with the largest audiences, the following interactive chart can help you to some extent. 
+Based on the information from the first two interactive charts, the following interactive pie chart shows the total sales of gaming platforms and will provide you with insights into the mainstream platforms and those with the largest audiences. 
 
-Combining the information from the first two interactive charts, this chart clearly shows the total sales of the gaming platforms. The higher the sales, the more it proves that the game platform attracts a large enough audience and therefore creates a virtuous circle where game publishers are more willing to release games on these platforms to attract their audience.
+The higher the sales, the more evidence that the gaming platform is attracting a large enough audience, thus creating a virtuous cycle where game publishers are more willing to release their games on these platforms to attract players.
 
 ```{r message=FALSE, warning=FALSE, echo=FALSE}
 # Pie
